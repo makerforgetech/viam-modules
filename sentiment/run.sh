@@ -1,13 +1,20 @@
-#!/bin/sh
+#!/bin/bash
 cd `dirname $0`
 
-# Create a virtual environment to run our code
-VENV_NAME="venv"
-PYTHON="$VENV_NAME/bin/python"
-
-python3 -m venv $VENV_NAME
-$PYTHON -m pip install -r requirements.txt -U # remove -U if viam-sdk should not be upgraded whenever possible
+if [ -f .installed ]
+  then
+    source viam-env/bin/activate
+  else
+    python3 -m pip install --user virtualenv
+    python3 -m venv viam-env
+    source viam-env/bin/activate
+    pip3 install --upgrade -r requirements.txt
+    if [ $? -eq 0 ]
+      then
+        touch .installed
+    fi
+fi
 
 # Be sure to use `exec` so that termination signals reach the python process,
 # or handle forwarding termination signals manually
-exec $PYTHON src/main.py $@
+exec python3 -m src $@
