@@ -1,0 +1,19 @@
+{
+  "module_id": "makerforge:sentiment",
+  "visibility": "private",
+  "url": "https://github.com/makerforgetech/viam-modules",
+  "description": "Sentiment Analysis of text",
+  "models": [
+    {
+      "api": "rdk:service:ml-models",
+      "model": "makerforge:viam-modules:sentiment"
+    }
+  ],
+  "entrypoint": "run.sh",
+  "build": {
+    "build": "",
+    "setup": "",
+    "path": "",
+    "arch": null
+  }
+}
