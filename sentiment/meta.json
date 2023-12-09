@@ -5,7 +5,7 @@
   "description": "Sentiment Analysis of text",
   "models": [
     {
-      "api": "rdk:service:ml_model",
+      "api": "rdk:service:mlmodel",
       "model": "makerforge:viam-modules:sentiment"
     }
   ],

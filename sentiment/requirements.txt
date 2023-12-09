@@ -1,2 +1,2 @@
 nltk
-viam-sdk
+viam-sdk[mlmodel]
