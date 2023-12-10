@@ -46,7 +46,7 @@ class Sentiment(MLModel, Reconfigurable):
     def __init__(self, name: str, left: str, right: str):
         super().__init__(name, left, right)
         # Do this the first time
-        nltk.download('all')
+        nltk.download('vader_lexicon')
 
         # initialize NLTK sentiment analyzer
         self.analyzer = SentimentIntensityAnalyzer()
