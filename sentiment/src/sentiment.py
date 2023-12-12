@@ -4,6 +4,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 
 from typing import ClassVar, Mapping, Sequence, Any, Dict, Optional, cast
+from grpclib.client import Channel
 
 from typing_extensions import Self
 
@@ -12,44 +13,36 @@ from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import ResourceName, Vector3
 from viam.resource.base import ResourceBase
 from viam.resource.types import Model, ModelFamily
-from viam.utils import ValueTypes
+from viam.utils import ValueTypes, dict_to_struct, struct_to_dict
+
 from viam.logging import getLogger
+
+from viam.proto.common import DoCommandRequest, DoCommandResponse
+
 
 from numpy.typing import NDArray
 
 from viam.proto.service.mlmodel import Metadata
 from viam.resource.types import RESOURCE_NAMESPACE_RDK, RESOURCE_TYPE_SERVICE, Subtype
 
-from viam.services.mlmodel import MLModel
+from viam.services.mlmodel import MLModelClient
 
 LOGGER = getLogger(__name__)
 
-
-class Sentiment(MLModel, Reconfigurable):
-    """
-    MyBase implements a base that only supports set_power
-    (basic forward/back/turn controls) is_moving (check if in motion), and stop
-    (stop all motion).
-
-    It inherits from the built-in resource subtype Base and conforms to the
-    ``Reconfigurable`` protocol, which signifies that this component can be
-    reconfigured. Additionally, it specifies a constructor function
-    ``MyBase.new_base`` which confirms to the
-    ``resource.types.ResourceCreator`` type required for all models.
-    """
-
+class Sentiment(MLModelClient, Reconfigurable):
     # Here is where we define our new model's colon-delimited-triplet
     # (acme:demo:mybase) acme = namespace, demo = repo-name,
     # mybase = model name.
     MODEL: ClassVar[Model] = Model(ModelFamily("makerforge", "viam-modules"), "sentiment")
 
-    def __init__(self, name: str, left: str, right: str):
-        super().__init__(name, left, right)
+    def __init__(self, name: str, channel: Channel):
+        super().__init__(name, channel)
         # Do this the first time
         nltk.download('vader_lexicon')
 
         # initialize NLTK sentiment analyzer
         self.analyzer = SentimentIntensityAnalyzer()
+
 
     # Constructor
     @classmethod
@@ -79,13 +72,13 @@ class Sentiment(MLModel, Reconfigurable):
         # self.left = cast(Motor, left_motor)
         # self.right = cast(Motor, right_motor)
 
-    """
-    Implement the methods the Viam RDK defines for the base API
-    (rdk:component:base)
-    """
+    async def do_command(self, command: Mapping[str, ValueTypes], *, timeout: Optional[float] = None, **kwargs) -> Mapping[str, ValueTypes]:
+        request = DoCommandRequest(name=self.name, command=self.get(command.command))
+        response: DoCommandResponse = await self.client.DoCommand(request, timeout=timeout)
+        return struct_to_dict(response.result)
     
     # create get_sentiment function
-    async def get(self, text):
+    async def get(self, text: str) -> str:
         scores = self.analyzer.polarity_scores(text)
         print(scores)
         return scores['compound']
