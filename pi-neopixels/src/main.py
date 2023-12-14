@@ -17,10 +17,10 @@ from viam.resource.types import Model, ModelFamily
 from viam.module.module import Module
 
 import time
-# import board
-# import busio
-# from rainbowio import colorwheel
-# from adafruit_seesaw import seesaw, neopixel
+# import board # @todo Viam doesn't like this
+import busio
+from rainbowio import colorwheel
+from adafruit_seesaw import seesaw, neopixel
 
 LOGGER = getLogger(__name__)
 
@@ -30,11 +30,12 @@ class Neopixel(Generic):
 
     def __init__(self, name: str):
         super().__init__(name)
+        print("Hi")
         # self.i2c = busio.I2C(board.SCL, board.SDA)
-        # self.ss = seesaw.Seesaw(i2c, addr=0x60)
+        # self.ss = seesaw.Seesaw(self.i2c, addr=0x60)
         # self.neo_pin = 15
         # self.num_pixels = 64
-        # self.pixels = neopixel.NeoPixel(ss, neo_pin, num_pixels, brightness = 0.1)
+        # self.pixels = neopixel.NeoPixel(self.ss, self.neo_pin, self.num_pixels, brightness = 0.1)
         # self.color_offset = 0
         
     async def do_command(

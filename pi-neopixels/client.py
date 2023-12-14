@@ -25,7 +25,7 @@ async def main():
     print("Resources:")
     print(robot.resource_names)
     
-    led = Generic.from_robot(robot, "neopxcomponent")
+    led = Generic.from_robot(robot, "neopixels")
     await led.do_command({"test": []})
     # for color in [65280, 0]:
     #     for pixel in range(7):

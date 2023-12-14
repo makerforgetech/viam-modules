@@ -1,2 +1,2 @@
 viam-sdk
-#adafruit-circuitpython-seesaw
+adafruit-circuitpython-seesaw
