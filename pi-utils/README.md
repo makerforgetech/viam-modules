@@ -4,6 +4,8 @@ Config -> Components -> Create Component -> Select makerforge:viam-modules:pi-ut
 
 # Usage
 
+Copy setenv.py.example into your script's directory as `setenv.py`, set the environment variables and save. The `client.py` script will use this file to connect to Viam.
+
 ## Get CPU temperature
 
 ```

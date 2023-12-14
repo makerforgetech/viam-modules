@@ -1,4 +1,4 @@
-# Copy this file into your module directory, set the values and save as 'setenv.py'
+# Copy into your script's directory as `setenv.py`, set the environment variables and save. The `client.py` script will use this file to connect to Viam.
 
 import os
 
