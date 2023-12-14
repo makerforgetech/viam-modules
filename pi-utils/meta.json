@@ -1,0 +1,19 @@
+{
+  "module_id": "makerforge:pi-utils",
+  "visibility": "private",
+  "url": "https://github.com/makerforgetech/viam-modules/tree/main/pi-utils",
+  "description": "Utility modules for Raspberry Pi including get_temp. See README.md for more information.",
+  "models": [
+    {
+      "api": "rdk:component:generic",
+      "model": "makerforge:viam-modules:pi-utils"
+    }
+  ],
+  "entrypoint": "run.sh",
+  "build": {
+    "build": "",
+    "setup": "",
+    "path": "",
+    "arch": null
+  }
+}
