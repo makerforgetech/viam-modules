@@ -1,0 +1,8 @@
+# Copy this file into your module directory, set the values and save as 'setenv.py'
+
+import os
+
+# These must be set. You can get them from your robot's 'Code sample' tab
+robot_api_key = os.environ['ROBOT_API_KEY'] = '<set>'
+robot_api_key_id = os.environ['ROBOT_API_KEY_ID'] = '<set>'
+robot_address = os.environ['ROBOT_ADDRESS'] = '<set>'

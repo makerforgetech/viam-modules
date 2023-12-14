@@ -1,0 +1,19 @@
+{
+  "module_id": "makerforge:pi-neopixels",
+  "visibility": "private",
+  "url": "https://github.com/makerforgetech/viam-modules",
+  "description": "Allow support of neopixels on the Raspberry Pi, using GPIO or I2C",
+  "models": [
+    {
+      "api": "rdk:component:generic",
+      "model": "makerforge:viam-modules:pi-neopixels"
+    }
+  ],
+  "entrypoint": "run.sh",
+  "build": {
+    "build": "",
+    "setup": "",
+    "path": "",
+    "arch": null
+  }
+}

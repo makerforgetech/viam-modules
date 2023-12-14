@@ -1,0 +1,6 @@
+__pycache__
+.venv
+viam-env
+setenv.py
+venv
+.installed
