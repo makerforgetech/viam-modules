@@ -33,7 +33,7 @@ class PiUtils(Generic):
     ) -> Mapping[str, ValueTypes]:
         result = {}
         LOGGER.info(f"received {command=}.")
-        print("neopixel.py do_command reached")
+        print("pi-utils do_command reached")
         
         if "get_temp" in command:
             temp = await self.get_temp()
@@ -58,11 +58,12 @@ class PiUtils(Generic):
         return module
     
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
+        LOGGER.info("pi-utils reconfigure reached")
         pass
 
     @classmethod
     def validate_config(cls, config: ComponentConfig) -> Sequence[str]:
-        print("neopixel.py validate_config reached")
+        LOGGER.info("pi-utils validate_config reached")
         return []
     
 async def main():
