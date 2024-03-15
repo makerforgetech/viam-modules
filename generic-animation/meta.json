@@ -1,0 +1,19 @@
+{
+    "module_id": "makerforge:generic-animation",
+    "visibility": "private",
+    "url": "https://github.com/makerforgetech/viam-modules/tree/main/generic-animation",
+    "description": "Animation module for Raspberry Pi. See README.md for more information.",
+    "models": [
+      {
+        "api": "rdk:service:generic",
+        "model": "makerforge:viam-modules:animation"
+      }
+    ],
+    "entrypoint": "run.sh",
+    "build": {
+      "build": "",
+      "setup": "",
+      "path": "",
+      "arch": null
+    }
+  }
