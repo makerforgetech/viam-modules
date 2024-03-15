@@ -52,7 +52,6 @@ class animation(Generic, Reconfigurable):
         # some_pin = config.attributes.fields["some_pin"].number_value
         # if some_pin == "":
             # raise Exception("A some_pin must be defined")
-            
         path = config.attributes.fields['path'].string_value
         if path == "":
             raise Exception("A path must be defined")
@@ -78,8 +77,7 @@ class animation(Generic, Reconfigurable):
                 result = {key: False for key in command.keys()}
                 for (name, args) in command.items():
                     if name == 'animate':
-                        self.animate(*args)
-                        result[name] = True
+                        result[name] = await self.animate(*args)
                 return result
 
     async def animate(self, action):
@@ -89,8 +87,8 @@ class animation(Generic, Reconfigurable):
         """
         file = self.path + action + '.json'
         if not os.path.isfile(file):
-            raise ValueError('Animation does not exist: ' + action)
-
+            raise ValueError('Animation does not exist: ' + file)
+        
         with open(file, 'r') as f:
             parsed = json.load(f)
 
@@ -107,6 +105,7 @@ class animation(Generic, Reconfigurable):
                 pub.sendMessage(cmd, color=args[0])
             elif 'speak' == cmd:
                 pub.sendMessage(cmd, message=args[0])
+        return True
 
     from typing import Final
 
