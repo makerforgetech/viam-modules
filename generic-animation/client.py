@@ -30,7 +30,8 @@ async def main():
     # response = await animation.do_command({"animate": ["not_an_animation"]})
     
     response = await animation.do_command({"animate": ["head_shake"]})
-    print(f"The response is {response}")
+    # print(f"The response is {response}")
+    print(response)
     
 
     # Don't forget to close the machine when you're done!

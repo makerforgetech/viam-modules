@@ -91,12 +91,16 @@ class animation(Generic, Reconfigurable):
         
         with open(file, 'r') as f:
             parsed = json.load(f)
+            
+        #list of instructions
+        instructions = []
 
         for step in parsed:
             cmd = list(step.keys())[0]
             args = list(step.values())
             if 'servo:' in cmd:
                 pub.sendMessage(cmd, percentage=args[0])
+                instructions.append((cmd, args))
             elif 'sleep' == cmd:
                 sleep(args[0])
             elif 'animate' == cmd:
@@ -105,7 +109,7 @@ class animation(Generic, Reconfigurable):
                 pub.sendMessage(cmd, color=args[0])
             elif 'speak' == cmd:
                 pub.sendMessage(cmd, message=args[0])
-        return True
+        return instructions
 
     from typing import Final
 
