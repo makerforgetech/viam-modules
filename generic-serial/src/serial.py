@@ -56,6 +56,7 @@ class serial(Generic, Reconfigurable):
         # here we initialize the resource instance, the following is just an example and should be updated as needed
         self.serial_file = open_serial_port(baudrate=115200, timeout=None)
         pub.subscribe(self.send, 'serial')
+        LOGGER.info('[SERIAL] Serial port opened')
         return
 
     """ Implement the methods the Viam RDK defines for the Generic API (rdk:service:generic) """
@@ -82,21 +83,17 @@ class serial(Generic, Reconfigurable):
         pub.sendMessage('led', identifiers='status5', color='blue')
         # print('[serial] ' + str(serial.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
 
-        pub.sendMessage('log', msg='[serial] ' + str(self.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
+        LOGGER.info('[SERIAL] ' + str(self.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
         if type == serial.DEVICE_SERVO or type == 'servo':
             write_order(self.serial_file, Order.SERVO)
             write_i8(self.serial_file, identifier)
             write_i16(self.serial_file, int(message))
-            pub.sendMessage('log', msg="[serial] Servo(relative) " + str(identifier) + " " + str(message))
-            # print('[serial] Moved value from Arduino: ' + str(self.read16()))
-            pub.sendMessage('log', msg='[serial] Moved value from Arduino: ' + str(self.read16()))
+            LOGGER.info('[SERIAL] Moved value from Arduino: ' + str(self.read16()))
         if type == serial.DEVICE_SERVO_RELATIVE or type == 'servo_relative':
             write_order(self.serial_file, Order.SERVO_RELATIVE)
             write_i8(self.serial_file, identifier)
             write_i16(self.serial_file, int(message))
-            pub.sendMessage('log', msg="[serial] Servo(relative) " + str(identifier) + " " + str(message))
-            # print('[serial] Moved value from Arduino: ' + str(self.read16()))
-            pub.sendMessage('log', msg='[serial] Moved value from Arduino: ' + str(self.read16()))
+            LOGGER.info('[SERIAL] Moved value from Arduino: ' + str(self.read16()))
         elif type == serial.DEVICE_LED or type == 'led':
             write_order(self.serial_file, Order.LED)
             if isinstance(identifier, list) or isinstance(identifier, range):
