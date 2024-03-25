@@ -1,0 +1,3 @@
+viam-sdk
+robust-serial
+pypubsub
