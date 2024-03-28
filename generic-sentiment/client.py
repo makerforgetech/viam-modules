@@ -18,14 +18,6 @@ from viam.services.generic import Generic
 #     )
 #     return await RobotClient.at_address(robot_address, opts)
 
-
-async def connect():
-    opts = RobotClient.Options.with_api_key(
-      api_key='9tcf1ja0ntx6p9raap31r5cyx8bgtvhn',
-      api_key_id='767db108-8fed-42bc-9e04-4967fa93a194'
-    )
-    return await RobotClient.at_address('ubuntulaptop-main.n2qdsrpqxj.viam.cloud', opts)
-
 async def main():
     robot = await connect()
 
