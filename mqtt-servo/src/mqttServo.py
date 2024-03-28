@@ -21,7 +21,7 @@ from gpiozero import AngularServo
 
 LOGGER = getLogger(__name__)
 
-class safeServo(Servo, Reconfigurable):
+class mqttServo(Servo, Reconfigurable):
     
     """
     Servo represents a physical servo.
@@ -93,6 +93,7 @@ class safeServo(Servo, Reconfigurable):
         
         pub.subscribe(self.mvabs, 'servo:' + self.identifier + ':mvabs')
         pub.subscribe(self.mv, 'servo:' + self.identifier + ':mv')
+        LOGGER.info('[SERVO] %s Initialized' % self.identifier)
         return
 
     """ Implement the methods the Viam RDK defines for the Servo API (rdk:component:servo) """
@@ -115,12 +116,10 @@ class safeServo(Servo, Reconfigurable):
             angle (int): The desired angle of the servo in degrees.
         """
         if self.range[0] > angle or self.range[1] < angle:
-            LOGGER.error('[Servo] %s Angle out of range: %d' % (self.identifier, angle))
-            pub.sendMessage('log:error', msg='[Servo] %s Angle out of range: %d' % (self.identifier, angle))
+            LOGGER.error('[SERVO] %s Angle out of range: %d' % (self.identifier, angle))
             return False
         self.pos = int(angle)
-        pub.sendMessage('log:info', msg='[Servo] %s Moving to %d' % (self.identifier, angle))
-        LOGGER.info('[Servo] %s Moving to %d' % (self.identifier, angle))
+        LOGGER.info('[SERVO] %s Moving to %d' % (self.identifier, angle))
         if (self.serial):
             pub.sendMessage('serial', type=self.DEVICE_SERVO, identifier=self.index, message=self.angle_to_percentage(angle))   
         else:
