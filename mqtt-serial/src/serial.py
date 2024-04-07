@@ -12,11 +12,11 @@ from viam.resource.types import Model, ModelFamily
 
 from viam.services.generic import Generic
 from viam.logging import getLogger
+from pubsub_python import Pubsub
 
 import time
 import asyncio
 
-from pubsub import pub
 from robust_serial import write_order, Order, write_i8, write_i16, read_i8, read_i16, read_i32, read_order
 from robust_serial.utils import open_serial_port
 
@@ -38,6 +38,7 @@ class serial(Generic, Reconfigurable):
     ORDER_RECEIVED = 5
     
     serial_file: Any
+    mqtt: Pubsub
     
     # Constructor
     @classmethod
@@ -49,14 +50,36 @@ class serial(Generic, Reconfigurable):
     # Validates JSON Configuration
     @classmethod
     def validate(cls, config: ComponentConfig):
+        mqtt = config.attributes.fields["mqtt"].string_value
+        if mqtt == "":
+            raise Exception("mqtt service must be defined")
         return
 
     # Handles attribute reconfiguration
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
         # here we initialize the resource instance, the following is just an example and should be updated as needed
         self.serial_file = open_serial_port(baudrate=115200, timeout=None)
-        pub.subscribe(self.send, 'serial')
+        # pub.subscribe(self.send, 'serial')
         LOGGER.info('[SERIAL] Serial port opened')
+        
+        mqtt = config.attributes.fields["mqtt"].string_value
+        actual_mqtt = dependencies[Pubsub.get_resource_name(mqtt)]
+        self.mqtt = cast(Pubsub, actual_mqtt)
+        LOGGER.info('[SERIAL] MQTT service defined')
+        
+        
+        def printMsg(msg):
+            print(msg)
+
+        async def sub():
+            await self.mqtt.subscribe("test/topic", printMsg)
+
+        asyncio.ensure_future(sub())
+        
+        LOGGER.info('[SERIAL] Subscribed to MQTT topic')
+            
+        # asyncio.ensure_future(self.sub())
+
         return
 
     """ Implement the methods the Viam RDK defines for the Generic API (rdk:service:generic) """
@@ -80,7 +103,7 @@ class serial(Generic, Reconfigurable):
         if self.serial_file is None:
             return
 
-        pub.sendMessage('led', identifiers='status5', color='blue')
+        # pub.sendMessage('led', identifiers='status5', color='blue')
         # print('[serial] ' + str(serial.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
 
         LOGGER.info('[SERIAL] ' + str(self.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
@@ -117,11 +140,11 @@ class serial(Generic, Reconfigurable):
             write_i8(self.serial_file, message)
 
         elif type == serial.DEVICE_PIN_READ or type == 'pin_read':
-            pub.sendMessage('led', identifiers='status5', color='green')
+            # pub.sendMessage('led', identifiers='status5', color='green')
             write_order(self.serial_file, Order.READ)
             write_i8(self.serial_file, identifier)
-            pub.sendMessage('led', identifiers='status5', color='off')
+            # pub.sendMessage('led', identifiers='status5', color='off')
             return read_i16(self.serial_file)
-        pub.sendMessage('led', identifiers='status5', color='off')
+        # pub.sendMessage('led', identifiers='status5', color='off')
         
     from typing import Final

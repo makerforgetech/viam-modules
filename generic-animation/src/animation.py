@@ -15,12 +15,12 @@ from viam.resource.types import Model, ModelFamily
 from viam.services.generic import Generic
 from viam.logging import getLogger
 from viam.utils import ValueTypes
+from pubsub_python import Pubsub
 
 import time
 import asyncio
 import json
 import os.path
-from pubsub import pub
 from time import sleep
 
 LOGGER = getLogger(__name__)
@@ -37,6 +37,7 @@ class animation(Generic, Reconfigurable):
     # create any class parameters here, 'some_pin' is used as an example (change/add as needed)
     # some_pin: int
     path: str
+    mqtt: Pubsub
 
     # Constructor
     @classmethod
@@ -55,6 +56,9 @@ class animation(Generic, Reconfigurable):
         path = config.attributes.fields['path'].string_value
         if path == "":
             raise Exception("A path must be defined")
+        mqtt = config.attributes.fields["mqtt"].string_value
+        if mqtt == "":
+            raise Exception("mqtt service must be defined")
         return
 
     # Handles attribute reconfiguration
@@ -62,7 +66,13 @@ class animation(Generic, Reconfigurable):
         # here we initialize the resource instance, the following is just an example and should be updated as needed
         # self.some_pin = int(config.attributes.fields["some_pin"].number_value)
         self.path = str(config.attributes.fields['path'].string_value)
-        pub.subscribe(self.animate, "animate")
+        # pub.subscribe(self.animate, "animate")
+        
+        
+        mqtt = config.attributes.fields["mqtt"].string_value
+        actual_mqtt = dependencies[Pubsub.get_resource_name(mqtt)]
+        self.mqtt = cast(Pubsub, actual_mqtt)
+        LOGGER.info('[ANIMATION] MQTT service defined')
         return
 
     """ Implement the methods the Viam RDK defines for the Generic API (rdk:service:generic) """
@@ -94,21 +104,29 @@ class animation(Generic, Reconfigurable):
             
         #list of instructions
         instructions = []
+        
+        async def pub():
+            await asyncio.sleep(1)
+            await self.mqtt.publish("test/topic", "test message", 0)
 
+        asyncio.ensure_future(pub())
+        
         for step in parsed:
             cmd = list(step.keys())[0]
             args = list(step.values())
             if 'servo:' in cmd:
-                pub.sendMessage(cmd, percentage=args[0])
+                self.mqtt.publish(cmd, args[0], 0)
                 instructions.append((cmd, args))
             elif 'sleep' == cmd:
                 sleep(args[0])
             elif 'animate' == cmd:
-                pub.sendMessage(cmd, action=args[0])
+                self.mqtt.publish(cmd, args[0], 0)
             elif 'led:' in cmd:
-                pub.sendMessage(cmd, color=args[0])
+                self.mqtt.publish(cmd, args[0], 0)
             elif 'speak' == cmd:
-                pub.sendMessage(cmd, message=args[0])
+                self.mqtt.publish(cmd, args[0], 0)
+            elif 'pin' in cmd:
+                self.mqtt.publish(cmd, args[0], 0)
         return instructions
 
     from typing import Final
