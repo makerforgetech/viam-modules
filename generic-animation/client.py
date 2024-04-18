@@ -1,8 +1,10 @@
 import asyncio
+import os
 
 from viam.robot.client import RobotClient
 from viam.rpc.dial import Credentials, DialOptions
 from viam.services.generic import Generic
+from pubsub_python import Pubsub
 
 
 import setenv # Set below environment variables
@@ -33,6 +35,14 @@ async def main():
     # print(f"The response is {response}")
     print(response)
     
+    api = Pubsub.from_robot(robot, name="mqtt-service")
+    
+    json = {
+        "action": 'sit'
+    }
+    await api.publish("animation/send", str(json), 0)
+        
+    await asyncio.sleep(2)
 
     # Don't forget to close the machine when you're done!
     await robot.close()

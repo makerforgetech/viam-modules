@@ -1,10 +1,11 @@
 import asyncio
-import time, os
+import os
 
-from viam.components.generic import Generic
 from viam.robot.client import RobotClient
 from viam.rpc.dial import Credentials, DialOptions
-from viam.components.sensor import Sensor
+from viam.services.generic import Generic
+from pubsub_python import Pubsub
+
 
 import setenv # Set below environment variables
 # These must be set. You can get them from your robot's 'Code sample' tab
@@ -22,23 +23,26 @@ async def connect():
 async def main():
     robot = await connect()
 
-    print("Resources:")
+    print('Resources:')
     print(robot.resource_names)
     
-    led = Generic.from_robot(robot, "pi-utilities")
-    response = await led.do_command({"get_temp": []})
-    print(f"The reading is {response}")
-    
-    response = await led.do_command({"pin:high": [22]})
-    print(f"Pin changed is {response}")
-    # for color in [65280, 0]:
-    #     for pixel in range(7):
-    #         await led.do_command({"set_pixel_color": [pixel, color]})
-    #         await led.do_command({"show": []})
-    #         time.sleep(1)
+    api = Pubsub.from_robot(robot, name="mqtt-service")
 
+    async def pub():
+        await asyncio.sleep(1)
+        json = {
+            "type": "servo",
+            "identifier": 1,
+            "message": 90
+        }
+        await api.publish("serial/send", str(json), 0)
+
+    await pub()
+        
+    await asyncio.sleep(2)
+
+    # Don't forget to close the machine when you're done!
     await robot.close()
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())

@@ -73,6 +73,21 @@ class animation(Generic, Reconfigurable):
         actual_mqtt = dependencies[Pubsub.get_resource_name(mqtt)]
         self.mqtt = cast(Pubsub, actual_mqtt)
         LOGGER.info('[ANIMATION] MQTT service defined')
+        
+        def mqttSend(msg: str):
+            LOGGER.info('[ANIMATION] mqttSend')
+            LOGGER.info('[ANIMATION] ' + str(msg))
+            deserialized_json = eval(msg)
+            LOGGER.info('[ANIMATION] ' + str(deserialized_json.get('action')))
+            asyncio.ensure_future(self.animate(deserialized_json.get('action')))
+        
+        async def sub():
+            await self.mqtt.subscribe("animation/send", mqttSend)
+
+        asyncio.ensure_future(sub())
+        
+        LOGGER.info('[ANIMATION] Subscribed to MQTT topic')
+        
         return
 
     """ Implement the methods the Viam RDK defines for the Generic API (rdk:service:generic) """
@@ -95,6 +110,7 @@ class animation(Generic, Reconfigurable):
         Move pan and tilt servos in sequence defined by given file
         :param filename: animation file in path specified in init
         """
+        LOGGER.info('[ANIMATION] animate')
         file = self.path + action + '.json'
         if not os.path.isfile(file):
             raise ValueError('Animation does not exist: ' + file)
@@ -105,28 +121,36 @@ class animation(Generic, Reconfigurable):
         #list of instructions
         instructions = []
         
-        async def pub():
-            await asyncio.sleep(1)
-            await self.mqtt.publish("test/topic", "test message", 0)
+        # async def pub():
+        #     await asyncio.sleep(1)
+        #     await self.mqtt.publish("test/topic", "test message", 0)
 
-        asyncio.ensure_future(pub())
+        # asyncio.ensure_future(pub())
         
         for step in parsed:
+            LOGGER.info('[ANIMATION] ' + str(step.keys()) + ' ' + str(step.values()))
             cmd = list(step.keys())[0]
             args = list(step.values())
             if 'servo:' in cmd:
-                self.mqtt.publish(cmd, args[0], 0)
+                split = cmd.split(':')
+                type = 'servo' if split[2] == 'mvabs' else 'servo_relative'
+                args = {
+                        'type': type,
+                        'identifier': split[1],
+                        'message': list(step.values())[0]
+                    }
+                await self.mqtt.publish('serial/send', str(args), 0)
                 instructions.append((cmd, args))
             elif 'sleep' == cmd:
                 sleep(args[0])
             elif 'animate' == cmd:
-                self.mqtt.publish(cmd, args[0], 0)
+                await self.mqtt.publish('animate/send', str(args), 0)
             elif 'led:' in cmd:
-                self.mqtt.publish(cmd, args[0], 0)
+                await self.mqtt.publish('led/send', str(args), 0)
             elif 'speak' == cmd:
-                self.mqtt.publish(cmd, args[0], 0)
+                await self.mqtt.publish('speak/send', str(args), 0)
             elif 'pin' in cmd:
-                self.mqtt.publish(cmd, args[0], 0)
+                await self.mqtt.publish('pin/read', str(args), 0)
         return instructions
 
     from typing import Final

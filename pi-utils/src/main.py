@@ -17,6 +17,7 @@ from viam.resource.types import Model, ModelFamily
 from viam.module.module import Module
 LOGGER = getLogger(__name__)
 
+from gpiozero import LED
 
 class PiUtils(Generic):
     MODEL: ClassVar[Model] = Model(ModelFamily("makerforge", "viam-modules"), "pi-utils")
@@ -35,10 +36,18 @@ class PiUtils(Generic):
         LOGGER.info(f"received {command=}.")
         print("pi-utils do_command reached")
         
-        if "get_temp" in command:
-            temp = await self.get_temp()
-            result["temp"] = temp
-        
+        result = {key: False for key in command.keys()}
+        for (name, args) in command.items():
+            if name == 'get_temp':
+                temp = await self.get_temp()
+                result["temp"] = temp
+            elif 'pin' in name:
+                led = LED(args[0])
+                if 'pin:high' == name:
+                    led.on()
+                else:
+                    led.off()
+                result["pin"] = args[0]
         return result
 
     async def get_temp(self):
