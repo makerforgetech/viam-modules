@@ -133,13 +133,8 @@ class animation(Generic, Reconfigurable):
             args = list(step.values())
             if 'servo:' in cmd:
                 split = cmd.split(':')
-                type = 'servo' if split[2] == 'mvabs' else 'servo_relative'
-                args = {
-                        'type': type,
-                        'identifier': split[1],
-                        'message': list(step.values())[0]
-                    }
-                await self.mqtt.publish('serial/send', str(args), 0)
+                
+                await self.mqtt.publish('servo/' + split[1] + '/' + split[2] , str({"percentage": args[0]}), 0)
                 instructions.append((cmd, args))
             elif 'sleep' == cmd:
                 sleep(args[0])

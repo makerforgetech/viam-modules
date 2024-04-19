@@ -15,7 +15,7 @@ from viam.logging import getLogger
 import time
 import asyncio
 
-from pubsub import pub
+from pubsub_python import Pubsub
 from gpiozero import AngularServo
 
 
@@ -31,9 +31,10 @@ class mqttServo(Servo, Reconfigurable):
     DEVICE_SERVO = 1
     DEVICE_SERVO_RELATIVE = 4
 
-    MODEL: ClassVar[Model] = Model(ModelFamily("makerforge", "viam-modules"), "safe-servo")
+    MODEL: ClassVar[Model] = Model(ModelFamily("makerforge", "viam-modules"), "mqtt-servo")
     
     # create any class parameters here
+    mqtt: Pubsub
     pin: int
     identifier: str
     index: int
@@ -54,6 +55,9 @@ class mqttServo(Servo, Reconfigurable):
     @classmethod
     def validate(cls, config: ComponentConfig):
         # here we validate config, the following is just an example and should be updated as needed
+        mqtt = config.attributes.fields["mqtt"].string_value
+        if mqtt == "":
+            raise Exception("mqtt service must be defined")
         pin = config.attributes.fields["pin"].number_value
         if pin == None:
             raise Exception("A pin must be defined")
@@ -91,12 +95,35 @@ class mqttServo(Servo, Reconfigurable):
         self.serial = config.attributes.fields["serial"].bool_value
         self.servo = None # Used for gpiozero servo
         
-        pub.subscribe(self.mvabs, 'servo:' + self.identifier + ':mvabs')
-        pub.subscribe(self.mv, 'servo:' + self.identifier + ':mv')
+        mqtt = config.attributes.fields["mqtt"].string_value
+        actual_mqtt = dependencies[Pubsub.get_resource_name(mqtt)]
+        self.mqtt = cast(Pubsub, actual_mqtt)
+        LOGGER.info('[SERVO] MQTT service defined')
+        
+        async def sub():
+            await self.mqtt.subscribe("servo/" + self.identifier + '/mvabs', self.mqttMvAbs)
+            await self.mqtt.subscribe("servo/" + self.identifier + '/mv', self.mqttMvRel)
+
+        asyncio.ensure_future(sub())
+        
         LOGGER.info('[SERVO] %s Initialized' % self.identifier)
         return
 
     """ Implement the methods the Viam RDK defines for the Servo API (rdk:component:servo) """
+    
+    def mqttMvAbs(self, msg: str):
+        LOGGER.info('[SERVO] mqttMvAbs')
+        LOGGER.info('[SERVO] ' + str(msg))
+        deserialized_json = eval(msg)
+        LOGGER.info('[SERVO] ' + str(deserialized_json.get('percentage')))
+        asyncio.ensure_future(self.mvabs(deserialized_json.get('percentage')))
+        
+    def mqttMvRel(self, msg: str):
+        LOGGER.info('[SERVO] mqttMvRel')
+        LOGGER.info('[SERVO] ' + str(msg))
+        deserialized_json = eval(msg)
+        LOGGER.info('[SERVO] ' + str(deserialized_json.get('percentage')))
+        asyncio.ensure_future(self.mv(deserialized_json.get('percentage')))
     
     async def move(self, angle: int, *, extra: Optional[Mapping[str, Any]] = None, timeout: Optional[float] = None, **kwargs):
         """
@@ -121,12 +148,13 @@ class mqttServo(Servo, Reconfigurable):
         self.pos = int(angle)
         LOGGER.info('[SERVO] %s Moving to %d' % (self.identifier, angle))
         if (self.serial):
-            pub.sendMessage('serial', type=self.DEVICE_SERVO, identifier=self.index, message=self.angle_to_percentage(angle))   
+            await self.mqtt.publish("serial/send", str({"type": self.DEVICE_SERVO, "identifier": self.index, "message": self.angle_to_percentage(angle)}), 0)
+            # pub.sendMessage('serial', type=self.DEVICE_SERVO, identifier=self.index, message=self.angle_to_percentage(angle))   
         else:
             if self.servo is None:
                 self.servo = AngularServo(self.pin, min_angle=self.range[0], max_angle=self.range[1], initial_angle=self.start)
             self.servo.angle = angle                # Changes the angle (to move the servo)
-            time.sleep(1)                                # @TODO: Remove this sleep
+            time.sleep(1)                           # @TODO: Remove this sleep
             self.servo.detach()                     # Detaches the servo (to stop jitter)
         
     async def mvabs(self, percentage: int):
