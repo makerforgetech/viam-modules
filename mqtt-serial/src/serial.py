@@ -87,7 +87,8 @@ class serial(Generic, Reconfigurable):
         LOGGER.info('[SERIAL] ' + str(deserialized_json.get('identifier')))
         LOGGER.info('[SERIAL] ' + str(deserialized_json.get('message')))
         self.test()
-        self.send(deserialized_json.get('type'), deserialized_json.get('identifier'), deserialized_json.get('message'))
+        # @todo identifier needs to be mapped to index based on name, this was referenced in the original JSON config.
+        # self.send(deserialized_json.get('type'), self.type_map[deserialized_json.get('identifier')], deserialized_json.get('message'))
         
     def test(self):
         LOGGER.info('[SERIAL] test method')

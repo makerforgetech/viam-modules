@@ -24,24 +24,16 @@ async def connect():
 async def main():
     robot = await connect()
 
-    print('Resources:')
-    print(robot.resource_names)
-    
-    animation = Generic.from_robot(robot, "animation-service")
-
-    # Uncomment to show failure    
-    # response = await animation.do_command({"animate": ["not_an_animation"]})
-    
-    response = await animation.do_command({"animate": ["head_shake"]})
-    # print(f"The response is {response}")
-    print(response)
+    # print('Resources:')
+    # print(robot.resource_names)
     
     api = Pubsub.from_robot(robot, name="mqtt-service")
-    
-    json = {
-        "action": 'sit'
-    }
-    await api.publish("animation/send", str(json), 0)
+
+    async def pub():
+        await asyncio.sleep(1)
+        await api.publish('servo/leg_l_hip/mv' , str({"percentage": 10}), 0)
+
+    await pub()
         
     await asyncio.sleep(2)
 
