@@ -1,23 +1,19 @@
-# serial modular service
+# MQTT Serial Module
 
-This module implements the [rdk generic API](https://github.com/rdk/generic-api) in a makerforge:viam-modules:serial model.
-With this model, you can...
+Communicate with a microcontroller over serial using MQTT events.
 
-## Requirements
+This module is built for use with the [Maker Forge Modular Biped Robot](https://github.com/makerforgetech/modular-biped).
 
-_Add instructions here for any requirements._
-
-``` bash
-```
+For support join the Maker Forge Discord server: [Join Discord](https://bit.ly/makerforge-community)
 
 ## Build and Run
 
 To use this module, follow these instructions to [add a module from the Viam Registry](https://docs.viam.com/registry/configure/#add-a-modular-resource-from-the-viam-registry) and select the `rdk:generic:makerforge:viam-modules:serial` model from the [`makerforge:viam-modules:serial` module](https://app.viam.com/module/rdk/makerforge:viam-modules:serial).
 
-## Configure your generic
+## Configure your MQTT Serial Service
 
 > [!NOTE]  
-> Before configuring your generic, you must [create a machine](https://docs.viam.com/manage/fleet/machines/#add-a-new-machine).
+> Before configuring your service, you must [create a machine](https://docs.viam.com/manage/fleet/machines/#add-a-new-machine).
 
 Navigate to the **Config** tab of your robot’s page in [the Viam app](https://app.viam.com/).
 Click on the **Components** subtab and click **Create component**.
@@ -28,7 +24,7 @@ On the new component panel, copy and paste the following attribute template into
 
 ```json
 {
-  TODO: INSERT SAMPLE ATTRIBUTES
+  "mqtt": <string>
 }
 ```
 
@@ -41,24 +37,37 @@ The following attributes are available for `rdk:generic:makerforge:viam-modules:
 
 | Name | Type | Inclusion | Description |
 | ---- | ---- | --------- | ----------- |
-| `todo1` | string | **Required** |  TODO |
-| `todo2` | string | Optional |  TODO |
+| `mqtt-service` | string | **Required** |  Define the MQTT service to use for communication |
 
 ### Example Configuration
 
 ```json
 {
-  TODO: INSERT SAMPLE CONFIGURATION(S)
+  "mqtt": "mqtt-service"
 }
 ```
 
-### Next Steps
+### Usage
 
-_Add any additional information you want readers to know and direct them towards what to do next with this module._
-_For example:_ 
+See `client.py` for a working example:
+  
+```python
 
-- To test your...
-- To write code against your...
+api = Pubsub.from_robot(robot, name="mqtt-service")
+
+async def pub():
+    await asyncio.sleep(1)
+    json = {
+        "type": "servo",
+        "identifier": 1,
+        "message": 90
+    }
+    await api.publish("serial/send", str(json), 0)
+
+await pub()
+    
+await asyncio.sleep(2)
+```
 
 ## Troubleshooting
 

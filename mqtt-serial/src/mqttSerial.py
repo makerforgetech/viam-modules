@@ -22,12 +22,12 @@ from robust_serial.utils import open_serial_port
 
 LOGGER = getLogger(__name__)
 
-class serial(Generic, Reconfigurable):
+class mqttSerial(Generic, Reconfigurable):
     
     """
     Generic service, which represents any type of service that can execute arbitrary commands
     """
-    MODEL: ClassVar[Model] = Model(ModelFamily("makerforge", "viam-modules"), "serial")
+    MODEL: ClassVar[Model] = Model(ModelFamily("makerforge", "viam-modules"), "mqtt-serial")
     
     type_map=['led', 'servo', 'servo_relative', ' pin', 'read']
     DEVICE_LED = 0
@@ -103,9 +103,9 @@ class serial(Generic, Reconfigurable):
     def send(self, type, identifier, message):
         """
         Examples:
-        # send(serial.DEVICE_SERVO, 18, 20)
-        # send(serial.DEVICE_LED, 1, (20,20,20))
-        # send(serial.DEVICE_LED, range(9), (20,20,20))
+        # send(mqttSerial.DEVICE_SERVO, 18, 20)
+        # send(mqttSerial.DEVICE_LED, 1, (20,20,20))
+        # send(mqttSerial.DEVICE_LED, range(9), (20,20,20))
         :param type: one of the DEVICE_ types
         :param identifier: an identifier or list / range of identifiers, pin or LED number
         :param message: the packet to send to the arduino
@@ -115,20 +115,20 @@ class serial(Generic, Reconfigurable):
             return
 
         # pub.sendMessage('led', identifiers='status5', color='blue')
-        # print('[serial] ' + str(serial.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
+        # print('[serial] ' + str(mqttSerial.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
 
         LOGGER.info('[SERIAL] ' + str(type) + ' id: ' + str(identifier) + ' val: ' + str(message))
-        if type == serial.DEVICE_SERVO or type == 'servo':
+        if type == mqttSerial.DEVICE_SERVO or type == 'servo':
             write_order(self.serial_file, Order.SERVO)
             write_i8(self.serial_file, identifier)
             write_i16(self.serial_file, int(message))
             LOGGER.info('[SERIAL] Moved value from Arduino: ' + str(self.read16()))
-        if type == serial.DEVICE_SERVO_RELATIVE or type == 'servo_relative':
+        if type == mqttSerial.DEVICE_SERVO_RELATIVE or type == 'servo_relative':
             write_order(self.serial_file, Order.SERVO_RELATIVE)
             write_i8(self.serial_file, identifier)
             write_i16(self.serial_file, int(message))
             LOGGER.info('[SERIAL] Moved value from Arduino: ' + str(self.read16()))
-        elif type == serial.DEVICE_LED or type == 'led':
+        elif type == mqttSerial.DEVICE_LED or type == 'led':
             write_order(self.serial_file, Order.LED)
             if isinstance(identifier, list) or isinstance(identifier, range):
                 # write the number of leds to update
@@ -145,12 +145,12 @@ class serial(Generic, Reconfigurable):
             else:
                 write_i16(self.serial_file, message)
 
-        elif type == serial.DEVICE_PIN or type == 'pin':
+        elif type == mqttSerial.DEVICE_PIN or type == 'pin':
             write_order(self.serial_file, Order.PIN)
             write_i8(self.serial_file, identifier)
             write_i8(self.serial_file, message)
 
-        elif type == serial.DEVICE_PIN_READ or type == 'pin_read':
+        elif type == mqttSerial.DEVICE_PIN_READ or type == 'pin_read':
             # pub.sendMessage('led', identifiers='status5', color='green')
             write_order(self.serial_file, Order.READ)
             write_i8(self.serial_file, identifier)
