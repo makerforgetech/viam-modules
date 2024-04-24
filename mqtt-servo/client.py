@@ -31,7 +31,6 @@ async def main():
     api = Pubsub.from_robot(robot, name="mqtt-service")
 
     async def pub():
-        await asyncio.sleep(1)
         # Topic includes identifier of the servo defined in the configuration (leg_l_hip in this example)
         await api.publish('servo/leg_l_hip/mv' , str({"percentage": 10}), 0)
 

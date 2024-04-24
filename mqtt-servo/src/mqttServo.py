@@ -112,17 +112,13 @@ class mqttServo(Servo, Reconfigurable):
     """ Implement the methods the Viam RDK defines for the Servo API (rdk:component:servo) """
     
     def mqttMvAbs(self, msg: str):
-        LOGGER.info('[SERVO] mqttMvAbs')
-        LOGGER.info('[SERVO] ' + str(msg))
+        LOGGER.info('[SERVO] mqttMvAbs ' + msg)
         deserialized_json = eval(msg)
-        LOGGER.info('[SERVO] ' + str(deserialized_json.get('percentage')))
         asyncio.ensure_future(self.mvabs(deserialized_json.get('percentage')))
         
     def mqttMvRel(self, msg: str):
-        LOGGER.info('[SERVO] mqttMvRel')
-        LOGGER.info('[SERVO] ' + str(msg))
+        LOGGER.info('[SERVO] mqttMvRel ' + msg)
         deserialized_json = eval(msg)
-        LOGGER.info('[SERVO] ' + str(deserialized_json.get('percentage')))
         asyncio.ensure_future(self.mv(deserialized_json.get('percentage')))
     
     async def move(self, angle: int, *, extra: Optional[Mapping[str, Any]] = None, timeout: Optional[float] = None, **kwargs):

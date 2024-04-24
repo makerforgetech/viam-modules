@@ -74,26 +74,14 @@ class mqttSerial(Generic, Reconfigurable):
         
         LOGGER.info('[SERIAL] Subscribed to MQTT topic')
             
-        # asyncio.ensure_future(self.sub())
-
         return
 
     """ Implement the methods the Viam RDK defines for the Generic API (rdk:service:generic) """
     def mqttSend(self, msg: str):
-        LOGGER.info('[SERIAL] mqttSend')
-        LOGGER.info('[SERIAL] ' + str(msg))
+        LOGGER.info('[SERIAL] mqttSend ' + msg)
         deserialized_json = eval(msg)
-        LOGGER.info('[SERIAL] ' + str(deserialized_json.get('type')))
-        LOGGER.info('[SERIAL] ' + str(deserialized_json.get('identifier')))
-        LOGGER.info('[SERIAL] ' + str(deserialized_json.get('message')))
-        self.test()
-        # @todo identifier needs to be mapped to index based on name, this was referenced in the original JSON config.
-        # self.send(deserialized_json.get('type'), self.type_map[deserialized_json.get('identifier')], deserialized_json.get('message'))
+        self.send(deserialized_json.get('type'), deserialized_json.get('identifier'), deserialized_json.get('message'))
         
-    def test(self):
-        LOGGER.info('[SERIAL] test method')
-        LOGGER.info('[SERIAL] serial_file: ' + str(self.serial_file))
-
     def read(self):
         return read_i8(self.serial_file)
 
@@ -110,14 +98,13 @@ class mqttSerial(Generic, Reconfigurable):
         :param identifier: an identifier or list / range of identifiers, pin or LED number
         :param message: the packet to send to the arduino
         """
-        LOGGER.info('[SERIAL] send')
         if self.serial_file is None:
             return
 
         # pub.sendMessage('led', identifiers='status5', color='blue')
         # print('[serial] ' + str(mqttSerial.type_map[type]) + ' id: ' + str(identifier) + ' val: ' + str(message))
 
-        LOGGER.info('[SERIAL] ' + str(type) + ' id: ' + str(identifier) + ' val: ' + str(message))
+        LOGGER.info('[SERIAL] type: ' + self.type_map[type] + ' id: ' + str(identifier) + ' val: ' + str(message))
         if type == mqttSerial.DEVICE_SERVO or type == 'servo':
             write_order(self.serial_file, Order.SERVO)
             write_i8(self.serial_file, identifier)

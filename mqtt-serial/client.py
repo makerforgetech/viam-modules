@@ -30,7 +30,6 @@ async def main():
     api = Pubsub.from_robot(robot, name="mqtt-service")
 
     async def pub():
-        await asyncio.sleep(1)
         json = {
             "type": "servo",
             "identifier": 1,

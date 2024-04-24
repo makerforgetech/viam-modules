@@ -86,7 +86,6 @@ from pubsub_python import Pubsub
 api = Pubsub.from_robot(robot, name="mqtt-service")
 
 async def pub():
-    await asyncio.sleep(1)
     await api.publish('servo/leg_l_hip/mv' , str({"percentage": 10}), 0)
 
 await pub()

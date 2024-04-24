@@ -121,12 +121,6 @@ class animation(Generic, Reconfigurable):
         #list of instructions
         instructions = []
         
-        # async def pub():
-        #     await asyncio.sleep(1)
-        #     await self.mqtt.publish("test/topic", "test message", 0)
-
-        # asyncio.ensure_future(pub())
-        
         for step in parsed:
             LOGGER.info('[ANIMATION] ' + str(step.keys()) + ' ' + str(step.values()))
             cmd = list(step.keys())[0]
