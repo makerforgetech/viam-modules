@@ -144,7 +144,7 @@ class mqttServo(Servo, Reconfigurable):
         self.pos = int(angle)
         LOGGER.info('[SERVO] %s Moving to %d' % (self.identifier, angle))
         if (self.serial):
-            await self.mqtt.publish("serial/send", str({"type": self.DEVICE_SERVO, "identifier": self.index, "message": self.angle_to_percentage(angle)}), 0)
+            await self.mqtt.publish("serial/send", str({"type": self.DEVICE_SERVO, "identifier": self.index, "message": self.angle_to_percentage(angle)}), 2)
             # pub.sendMessage('serial', type=self.DEVICE_SERVO, identifier=self.index, message=self.angle_to_percentage(angle))   
         else:
             if self.servo is None:

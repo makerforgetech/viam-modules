@@ -35,7 +35,7 @@ async def main():
             "identifier": 1,
             "message": 90
         }
-        await api.publish("serial/send", str(json), 0)
+        await api.publish("serial/send", str(json), 2)
 
     await pub()
         

@@ -41,7 +41,7 @@ async def main():
     json = {
         "action": 'sit'
     }
-    await api.publish("animation/send", str(json), 0)
+    await api.publish("animation/send", str(json), 2)
         
     await asyncio.sleep(2)
 

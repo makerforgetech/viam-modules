@@ -128,18 +128,18 @@ class animation(Generic, Reconfigurable):
             if 'servo:' in cmd:
                 split = cmd.split(':')
                 
-                await self.mqtt.publish('servo/' + split[1] + '/' + split[2] , str({"percentage": args[0]}), 0)
+                await self.mqtt.publish('servo/' + split[1] + '/' + split[2] , str({"percentage": args[0]}), 2)
                 instructions.append((cmd, args))
             elif 'sleep' == cmd:
                 sleep(args[0])
             elif 'animate' == cmd:
-                await self.mqtt.publish('animate/send', str(args), 0)
+                await self.mqtt.publish('animate/send', str(args), 2)
             elif 'led:' in cmd:
-                await self.mqtt.publish('led/send', str(args), 0)
+                await self.mqtt.publish('led/send', str(args), 2)
             elif 'speak' == cmd:
-                await self.mqtt.publish('speak/send', str(args), 0)
+                await self.mqtt.publish('speak/send', str(args), 2)
             elif 'pin' in cmd:
-                await self.mqtt.publish('pin/read', str(args), 0)
+                await self.mqtt.publish('pin/read', str(args), 2)
         return instructions
 
     from typing import Final

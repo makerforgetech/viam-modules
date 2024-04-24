@@ -4,3 +4,5 @@ viam-env
 setenv.py
 venv
 .installed
+archive*
+test_*
