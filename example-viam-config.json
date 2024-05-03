@@ -1,0 +1,340 @@
+{
+    "components": [
+      {
+        "name": "servo_leg_l_hip",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "index": 0,
+          "pin": 9,
+          "range_max": 180,
+          "range_min": 0,
+          "serial": true,
+          "start": 40,
+          "mqtt": "mqtt-service",
+          "identifier": "leg_l_hip"
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_leg_l_knee",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "pin": 10,
+          "range_max": 180,
+          "range_min": 0,
+          "serial": true,
+          "start": 10,
+          "mqtt": "mqtt-service",
+          "identifier": "leg_l_knee",
+          "index": 1
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_leg_l_ankle",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "serial": true,
+          "start": 100,
+          "mqtt": "mqtt-service",
+          "identifier": "leg_l_ankle",
+          "index": 2,
+          "pin": 11,
+          "range_max": 165,
+          "range_min": 5
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_leg_r_hip",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "pin": 6,
+          "range_max": 180,
+          "range_min": 0,
+          "serial": true,
+          "start": 60,
+          "mqtt": "mqtt-service",
+          "identifier": "leg_r_hip",
+          "index": 3
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_leg_r_knee",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "identifier": "leg_r_knee",
+          "index": 4,
+          "pin": 7,
+          "range_max": 180,
+          "range_min": 0,
+          "serial": true,
+          "start": 90,
+          "mqtt": "mqtt-service"
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_leg_r_ankle",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "range_max": 180,
+          "range_min": 10,
+          "serial": true,
+          "start": 0,
+          "mqtt": "mqtt-service",
+          "identifier": "leg_r_ankle",
+          "index": 5,
+          "pin": 8
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_tilt",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "serial": true,
+          "start": 50,
+          "mqtt": "mqtt-service",
+          "identifier": "tilt",
+          "index": 6,
+          "pin": 2,
+          "range_max": 120,
+          "range_min": 60
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "servo_pan",
+        "namespace": "rdk",
+        "type": "servo",
+        "model": "makerforge:viam-modules:mqtt-servo",
+        "attributes": {
+          "identifier": "pan",
+          "index": 7,
+          "pin": 3,
+          "range_max": 150,
+          "range_min": 30,
+          "serial": true,
+          "start": 50,
+          "mqtt": "mqtt-service"
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "camera",
+        "namespace": "rdk",
+        "type": "camera",
+        "model": "viam:camera:csi-pi",
+        "attributes": {
+          "height_px": 480,
+          "width_px": 640,
+          "debug": false,
+          "frame_rate": 30
+        },
+        "depends_on": [
+          "pi5"
+        ]
+      },
+      {
+        "name": "object-camera-transform",
+        "namespace": "rdk",
+        "type": "camera",
+        "model": "transform",
+        "attributes": {
+          "pipeline": [
+            {
+              "attributes": {
+                "confidence_threshold": 0.5,
+                "detector_name": "object-detector"
+              },
+              "type": "detections"
+            }
+          ],
+          "source": "camera"
+        },
+        "depends_on": [
+          "camera"
+        ]
+      },
+      {
+        "name": "pi5",
+        "namespace": "rdk",
+        "type": "board",
+        "model": "pi5",
+        "attributes": {}
+      }
+    ],
+    "services": [
+      {
+        "name": "animation-service",
+        "namespace": "rdk",
+        "type": "generic",
+        "model": "makerforge:viam-modules:animation",
+        "attributes": {
+          "path": "/home/archie/modular-biped/animations/",
+          "mqtt": "mqtt-service"
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "object-model",
+        "namespace": "rdk",
+        "type": "mlmodel",
+        "model": "tflite_cpu",
+        "attributes": {
+          "label_path": "${packages.EfficientDet-COCO}/effdetlabels.txt",
+          "num_threads": 1,
+          "package_reference": "viam-labs/EfficientDet-COCO",
+          "model_path": "${packages.EfficientDet-COCO}/effdet0 (3).tflite"
+        }
+      },
+      {
+        "name": "object-detector",
+        "namespace": "rdk",
+        "type": "vision",
+        "model": "mlmodel",
+        "attributes": {
+          "mlmodel_name": "object-model"
+        }
+      },
+      {
+        "name": "llm-service",
+        "namespace": "viam-labs",
+        "type": "chat",
+        "model": "viam-labs:chat:llm",
+        "attributes": {
+          "temperature": 0.75,
+          "system_message": "A chat between a curious user and an artificial intelligence assistant. The assistant must start by introducing themselves as 'Archie'. The assistant gives helpful, detailed, and polite answers to the user's questions.",
+          "n_gpu_layers": 0
+        }
+      },
+      {
+        "name": "serial-service",
+        "namespace": "rdk",
+        "type": "generic",
+        "model": "makerforge:viam-modules:mqtt-serial",
+        "attributes": {
+          "mqtt": "mqtt-service"
+        },
+        "depends_on": [
+          "mqtt-service"
+        ]
+      },
+      {
+        "name": "mqtt-service",
+        "namespace": "viam-labs",
+        "type": "pubsub",
+        "model": "viam-labs:service:mqtt-grpc",
+        "attributes": {
+          "password": "localtestpass",
+          "local_mosquitto": true,
+          "username": "mymqttuser"
+        }
+      }
+    ],
+    "modules": [
+      {
+        "type": "registry",
+        "name": "viam_csi-cam-pi",
+        "module_id": "viam:csi-cam-pi",
+        "version": "latest"
+      },
+      {
+        "type": "registry",
+        "name": "viam-labs_local-llm",
+        "module_id": "viam-labs:local-llm",
+        "version": "0.2.4"
+      },
+      {
+        "type": "registry",
+        "name": "viam-labs_mqtt-grpc",
+        "module_id": "viam-labs:mqtt-grpc",
+        "version": "0.0.2"
+      },
+      {
+        "type": "local",
+        "name": "animation-module",
+        "executable_path": "/home/archie/projects/viam-modules/generic-animation/run.sh"
+      },
+      {
+        "type": "local",
+        "name": "serial-module",
+        "executable_path": "/home/archie/projects/viam-modules/mqtt-serial/run.sh"
+      },
+      {
+        "type": "local",
+        "name": "servo-module",
+        "executable_path": "/home/archie/projects/viam-modules/mqtt-servo/run.sh"
+      }
+    ],
+    "packages": [
+      {
+        "name": "EfficientDet-COCO",
+        "package": "viam-labs/EfficientDet-COCO",
+        "type": "ml_model",
+        "version": "latest"
+      }
+    ],
+    "agent_config": {
+      "subsystems": {
+        "agent-provisioning": {
+          "pin_url": "",
+          "disable_subsystem": false,
+          "release_channel": "stable",
+          "pin_version": ""
+        },
+        "agent-syscfg": {
+          "pin_version": "",
+          "pin_url": "",
+          "disable_subsystem": false,
+          "release_channel": "stable"
+        },
+        "viam-agent": {
+          "disable_subsystem": false,
+          "release_channel": "stable",
+          "pin_version": "",
+          "pin_url": ""
+        },
+        "viam-server": {
+          "release_channel": "stable",
+          "pin_version": "",
+          "pin_url": "",
+          "disable_subsystem": false
+        }
+      }
+    }
+  }
