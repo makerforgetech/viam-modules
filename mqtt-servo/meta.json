@@ -1,6 +1,6 @@
 {
   "module_id": "makerforge:mqtt-servo",
-  "visibility": "private",
+  "visibility": "public",
   "url": "https://github.com/makerforgetech/viam-modules/tree/main/mqtt-servo",
   "description": "Communicate with a servo motor over MQTT using percentage values.",
   "models": [

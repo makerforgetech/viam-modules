@@ -1,6 +1,6 @@
 {
   "module_id": "makerforge:mqtt-serial",
-  "visibility": "private",
+  "visibility": "public",
   "url": "https://github.com/makerforgetech/viam-modules/tree/main/mqtt-serial",
   "description": "Communicate with a microcontroller over serial using MQTT events.",
   "models": [
